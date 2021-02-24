@@ -7,6 +7,7 @@ module FixtureBuilder
       @custom_names = {}
       @model_name_procs = {}
       @record_names = {}
+      @klass_lookup = {}
     end
 
     def name_model_with(model_class, &block)
@@ -18,9 +19,18 @@ module FixtureBuilder
       model_objects.each do |model_object|
         raise "Cannot name a blank object" unless model_object.present?
         key = [model_object.class.table_name, model_object.id]
+        @klass_lookup[model_object.class.table_name] = model_object.class
         raise "Cannot set name for #{key.inspect} object twice" if @custom_names[key]
         @custom_names[key] = custom_name
         model_object
+      end
+    end
+
+    def lookup_klass(table_name)
+      if @klass_lookup[table_name]
+        @klass_lookup[table_name]
+      else
+        table_name.classify.constantize rescue nil
       end
     end
 

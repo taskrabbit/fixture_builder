@@ -96,7 +96,7 @@ module FixtureBuilder
       Date::DATE_FORMATS[:default] = Date::DATE_FORMATS[:db]
       begin
         fixtures = tables.inject([]) do |files, table_name|
-          table_klass = table_name.classify.constantize rescue nil
+          table_klass = @namer.lookup_klass(table_name)
           if table_klass && table_klass < ActiveRecord::Base
             rows = table_klass.unscoped do
               table_klass.order(:id).all.collect do |obj|
